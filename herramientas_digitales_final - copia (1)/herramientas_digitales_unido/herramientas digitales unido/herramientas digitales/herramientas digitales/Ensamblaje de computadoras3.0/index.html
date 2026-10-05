@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Simuladores Virtuales - UNDC</title>
+    <!-- Importamos la fuente futurista de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/estilo.css" type="text/css" media="all" />
+    <script language="javascript" type="text/javascript" src="js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="js/jquery.popup.js"></script>
+    <script language="javascript" type="text/javascript" src="js/basic.js"></script>
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(rgba(10, 15, 30, 0.6), rgba(5, 8, 18, 0.8)), url('img/fondo_nuevo.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* --- MALLA Y ESCÁNER --- */
+        .cyber-grid {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: 1;
+        }
+
+        .scanline {
+            position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: rgba(0, 229, 255, 0.4); box-shadow: 0 0 15px #00e5ff;
+            z-index: 2; animation: scan 8s linear infinite; opacity: 0.5;
+        }
+        @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
+
+        /* --- HUD LATERALES --- */
+        .hud-element {
+            position: absolute; z-index: 5; color: rgba(0, 229, 255, 0.6);
+            font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+            font-family: 'Orbitron', monospace; /* Fuente nueva */
+        }
+        .hud-left { top: 30%; left: 30px; border-left: 2px solid rgba(0,229,255,0.3); padding-left: 10px; }
+        .hud-right { top: 30%; right: 30px; border-right: 2px solid rgba(112,0,255,0.3); padding-right: 10px; text-align: right; }
+        .hud-element p { margin-bottom: 8px; }
+        .hud-element span { color: #fff; font-weight: bold; text-shadow: 0 0 5px #00e5ff; }
+
+        /* --- LOGOS Y CRÉDITOS --- */
+        .logo-box {
+            position: absolute; top: 20px; z-index: 10; background: rgba(10, 15, 30, 0.6);
+            backdrop-filter: blur(10px); padding: 8px 15px; border-radius: 12px;
+            border: 1px solid rgba(0, 229, 255, 0.3); box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+        }
+        .logo-izquierda { left: 30px; } .logo-derecha { right: 30px; }
+        .logo-box img { height: 85px; width: auto; display: block; }
+        .creditos {
+            position: absolute; top: 25px; left: 50%; transform: translateX(-50%);
+            background: rgba(10, 15, 30, 0.7); backdrop-filter: blur(8px);
+            color: #00e5ff; padding: 8px 24px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; letter-spacing: 1px;
+            border: 1px solid rgba(112, 0, 255, 0.5); z-index: 10;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* --- TARJETAS --- */
+        .equipos-container {
+            position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; justify-content: center; align-items: center; gap: 80px; width: 100%; z-index: 10;
+        }
+        .card-tech {
+            background: rgba(13, 19, 38, 0.5); backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 229, 255, 0.25); border-radius: 24px;
+            padding: 40px; text-align: center; transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); width: 380px;
+        }
+        .card-tech:hover {
+            transform: translateY(-10px) scale(1.02); border-color: #00e5ff;
+            box-shadow: 0 0 35px rgba(0, 229, 255, 0.4);
+        }
+        .card-tech img { height: 210px; width: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8)); margin-bottom: 20px; }
+        .btn-label {
+            background: linear-gradient(135deg, #00e5ff, #7000ff); color: #ffffff;
+            padding: 12px 30px; border-radius: 30px; font-weight: 800; font-size: 14px;
+            letter-spacing: 1.5px; border: none; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+            display: inline-block; text-decoration: none; width: 100%; font-family: 'Orbitron', sans-serif;
+        }
+        .card-desc { color: #a4b4c4; font-size: 13px; margin-top: 15px; line-height: 1.5; font-family: 'Segoe UI', sans-serif; }
+        a { text-decoration: none; }
+
+        /* ========================================= */
+        /* NUEVO TÍTULO ANIMADO Y FUTURISTA          */
+        /* ========================================= */
+        .footer-title {
+            position: absolute; 
+            bottom: 35px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            text-align: center; 
+            z-index: 10;
+            width: 100%;
+        }
+
+        .footer-title h1 { 
+            font-family: 'Orbitron', sans-serif; /* Fuente tecnológica */
+            font-size: 32px; 
+            font-weight: 900; 
+            letter-spacing: 4px; 
+            margin-bottom: 8px;
+            
+            /* Efecto de texto holográfico con barrido de luz */
+            background: linear-gradient(90deg, #ffffff 0%, #00e5ff 40%, #ffffff 50%, #00e5ff 60%, #ffffff 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+            
+            /* Animación del brillo */
+            animation: shine 4s linear infinite;
+            filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.6));
+        }
+
+        .footer-title h2 { 
+            font-family: 'Orbitron', sans-serif;
+            color: #38bdf8; 
+            font-size: 13px; 
+            font-weight: 700; 
+            letter-spacing: 6px; 
+            text-transform: uppercase;
+            
+            /* Efecto de latido (pulsación neón) */
+            animation: neonPulse 2s ease-in-out infinite alternate;
+        }
+
+        /* Keyframes para el barrido de luz en el título */
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        /* Keyframes para el latido del subtítulo */
+        @keyframes neonPulse {
+            0% { opacity: 0.7; text-shadow: 0 0 5px rgba(0, 229, 255, 0.2); }
+            100% { opacity: 1; text-shadow: 0 0 15px rgba(0, 229, 255, 0.8), 0 0 25px rgba(112, 0, 255, 0.6); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cyber-grid"></div>
+    <div class="scanline"></div>
+
+    <div class="hud-element hud-left">
+        <p>ESTADO: <span>EN LÍNEA</span></p>
+        <p>CONEXIÓN: <span>ESTABLE</span></p>
+        <p>MOTOR 3D: <span>RENDERIZANDO</span></p>
+        <br><p style="color: rgba(0, 229, 255, 0.3);">/// INICIALIZANDO SECUENCIA</p>
+    </div>
+
+    <div class="hud-element hud-right">
+        <p>VERSIÓN DEL SISTEMA: <span>V3.0</span></p>
+        <p>MÓDULOS CARGADOS: <span>2/2</span></p>
+        <p>ENTORNO: <span>VIRTUAL</span></p>
+        <br><p style="color: rgba(112, 0, 255, 0.4);">SECUENCIA DE ARRANQUE ///</p>
+    </div>
+
+    <div id="basic-modal-content">
+        <iframe src="swf/Virtual Desktop/index.html" frameborder="0" scrolling="no" width="971" height="608" class="iframe_recup"></iframe>
+    </div>
+    <div id="basic-modal-content2">
+        <iframe src="swf/Virtual Laptop/index.html" frameborder="0" scrolling="no" width="971" height="608" class="iframe_recup"></iframe>
+    </div>
+
+    <div class="logo-box logo-izquierda"><img src="img/logo_universidad.png" alt="Logo UNDC"></div>
+    <div class="creditos">GRUPO: 2</div>
+    <div class="logo-box logo-derecha"><img src="img/Logo_de_la_facultad.jpg" alt="Logo FIS"></div>
+
+    <div class="equipos-container">
+        <div class="card-tech">
+            <div id="basic-modal">
+                <a href="#" class="basic">
+                    <img src="img/CPU.png" alt="Computadora Virtual">
+                    <div class="btn-label">COMPUTADORA VIRTUAL</div>
+                    <div class="card-desc">Simulador 3D interactivo. Aprende a ensamblar componentes internos de una PC de escritorio paso a paso.</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="card-tech">
+            <div id="basic-modal2">
+                <a href="#" class="basic">
+                    <img src="img/laptop_virtual.png" alt="Laptop Virtual">
+                    <div class="btn-label">LAPTOP VIRTUAL</div>
+                    <div class="card-desc">Entorno de aprendizaje virtual. Explora y reconoce las piezas portátiles de una Laptop de última generación.</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Título sin caja y con animaciones -->
+    <div class="footer-title">
+        <h1>UNIVERSIDAD NACIONAL DE CAÑETE</h1>
+        <h2>Simuladores Virtuales de Ensamblaje</h2>
+    </div>
+
+</body>
+</html>
